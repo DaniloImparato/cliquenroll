@@ -15,8 +15,9 @@ horarios <- function(cod) {
   unlist(lapply(cod, cart_prod))
 }
 
+setwd("C:/R/cliquenroll/")
 
-matricula <- read.table("C:/R/cliquenroll/matricula.tsv",stringsAsFactors = F,sep="\t",header=T)
+matricula <- read.table("matricula.tsv",stringsAsFactors = F,sep="\t",header=T)
 
 matricula[,"id"] <- 1:nrow(matricula)
 matricula[["horarios"]] <- lapply(matricula[,"horario"],horarios)
@@ -53,4 +54,4 @@ sugestoes <- lapply(g_cliques, function(sugestao){
   df <- append_comment(df,"")
 })
 
-write.table(do.call(rbind,sugestoes),"sugestoes.tsv",row.names = F,col.names = T,quote=F)
+write.table(do.call(rbind,sugestoes),"sugestoes.tsv",row.names = F,col.names = T,quote=F,sep="\t")
