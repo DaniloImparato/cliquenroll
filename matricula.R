@@ -18,14 +18,19 @@ horarios <- function(cod) {
 setwd("C:/R/cliquenroll/")
 
 matricula <- read.table("matricula.tsv",stringsAsFactors = F,sep="\t",header=T)
+recusados <- c("5T2","5T3")
 
-matricula[,"id"] <- 1:nrow(matricula)
 matricula[["horarios"]] <- lapply(matricula[,"horario"],horarios)
 matricula[,"carga"] <- sapply(matricula[["horarios"]],function(x) length(x)*15)
 
+#recusando horarios
+matricula <- matricula[!grepl(paste(recusados,collapse="|"),matricula[["horarios"]]),]
+
+#formatando data.frame
+matricula[,"id"] <- 1:nrow(matricula)
 matricula <- matricula[,c("id","nome","carga","horario","horarios")]
 
-
+#edgelist colisao de horarios
 acceptance <- data.frame(
    n = t(combn(matricula[,"id"],2))
   ,v = combn(matricula[,"horarios"],2,accepts)
