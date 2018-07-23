@@ -4,6 +4,8 @@ cart_prod <- function(x) levels(interaction(x, sep=""))
 
 accepts <- function(...) length(do.call(intersect, ...))==0
 
+append_comment <- function(df,comment) rbind(df,c("",comment))
+
 horarios <- function(cod) {
   cod <- split_unlist(cod, " ", perl=T)
   cod <- strsplit(cod, "(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)", perl=T)
@@ -14,13 +16,22 @@ horarios <- function(cod) {
 }
 
 
-matricula <- read.table("C:/Users/xdanilo/Downloads/_UF/matricula.txt",stringsAsFactors = F,sep="\t",header=T)
+matricula <- read.table("C:/R/cliquenroll/matricula.tsv",stringsAsFactors = F,sep="\t",header=T)
+
+matricula[,"id"] <- 1:nrow(matricula)
 matricula[["horarios"]] <- lapply(matricula[,"horario"],horarios)
 matricula[,"carga"] <- sapply(matricula[["horarios"]],function(x) length(x)*15)
 
+matricula <- matricula[,c("id","nome","carga","horario","horarios")]
 
-acceptance <- data.frame(n = t(combn(matricula[,"nome"],2)), v = combn(matricula[,"horarios"],2,accepts))
 
+acceptance <- data.frame(
+   n = t(combn(matricula[,"id"],2))
+  ,v = combn(matricula[,"horarios"],2,accepts)
+, stringsAsFactors = F)
+
+#impedindo mesma disciplina em horarios diferentes
+acceptance[with(acceptance, matricula[n.1,"nome"] == matricula[n.2,"nome"]),"v"] <- FALSE
 
 library(igraph)
 
@@ -30,3 +41,16 @@ V(g)$size <- V(g)$carga/5
 
 plot(g)
 
+g_cliques <- max_cliques(g)
+carga_clique <- sapply(g_cliques, function(x) sum(x$carga))
+
+g_cliques <- g_cliques[order(carga_clique, decreasing = T)]
+
+sugestoes <- lapply(g_cliques, function(sugestao){
+  df <- data.frame(nome = sugestao$nome, horario = sugestao$horario, stringsAsFactors = F)
+  df <- append_comment(df,"----------")
+  df <- append_comment(df,paste0(sum(sugestao$carga),"H"))
+  df <- append_comment(df,"")
+})
+
+write.table(do.call(rbind,sugestoes),"sugestoes.tsv",row.names = F,col.names = T,quote=F)
