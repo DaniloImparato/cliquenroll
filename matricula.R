@@ -18,7 +18,7 @@ horarios <- function(cod) {
 setwd("C:/R/cliquenroll/")
 
 matricula <- read.table("matricula.tsv",stringsAsFactors = F,sep="\t",header=T)
-recusados <- c("5T2","5T3")
+recusados <- c("M","T1","T2","T3","T4")
 
 matricula[["horarios"]] <- lapply(matricula[,"horario"],horarios)
 matricula[,"carga"] <- sapply(matricula[["horarios"]],function(x) length(x)*15)
