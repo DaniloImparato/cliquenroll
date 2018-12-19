@@ -17,8 +17,8 @@ horarios <- function(cod) {
 
 setwd("C:/R/cliquenroll/")
 
-matricula <- read.table("matricula.tsv",stringsAsFactors = F,sep="\t",header=T)
-recusados <- c("M","T1","T2","T3","T4")
+matricula <- read.table("matricula2.tsv",stringsAsFactors = F,sep="\t",header=T, encoding = "UTF-8")
+recusados <- c("M")
 
 matricula[["horarios"]] <- lapply(matricula[,"horario"],horarios)
 matricula[,"carga"] <- sapply(matricula[["horarios"]],function(x) length(x)*15)
@@ -40,14 +40,23 @@ acceptance <- data.frame(
 acceptance[with(acceptance, matricula[n.1,"nome"] == matricula[n.2,"nome"]),"v"] <- FALSE
 
 library(igraph)
+library(ggraph)
 
 g <- graph_from_data_frame(subset(acceptance, v==T), directed = F, vertices = matricula)
 
-V(g)$size <- V(g)$carga/5
+#V(g)$size <- V(g)$carga/5
 
-plot(g)
+#plot(g)
 
-g_cliques <- max_cliques(g)
+ggraph(g) +
+  geom_edge_link(colour="grey") +
+  geom_node_point(aes(size=carga, color=nome)) +
+  geom_node_text(aes(label=nome), size=V(g)$carga/20) +
+  scale_size_continuous(range = c(4,8), guide = "none") +
+  theme_void() + 
+  theme(legend.position = 'none')
+
+g_cliques <- cliques(g, min = 2, max = 6)
 carga_clique <- sapply(g_cliques, function(x) sum(x$carga))
 
 g_cliques <- g_cliques[order(carga_clique, decreasing = T)]
