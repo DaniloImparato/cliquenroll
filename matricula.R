@@ -15,13 +15,19 @@ horarios <- function(cod) {
   unlist(lapply(cod, cart_prod))
 }
 
+horarios_ref <- setNames(1:18, as.vector(sapply(c("M","T","N"), paste0, 1:6)))
+
 setwd("C:/R/cliquenroll/")
 
 matricula <- read.table("matricula2.tsv",stringsAsFactors = F,sep="\t",header=T, encoding = "UTF-8")
 recusados <- c("M")
 
-matricula[["horarios"]] <- lapply(matricula[,"horario"],horarios)
-matricula[,"carga"] <- sapply(matricula[["horarios"]],function(x) length(x)*15)
+matricula[["horarios"]] <- lapply(matricula[["horario"]],horarios)
+matricula[["carga"]] <- sapply(matricula[["horarios"]],length) * 15
+
+matricula[["teste"]] <- lapply(matricula[["horarios"]], function(x){
+  tapply(x,substring(x,1,1), function(x) horarios_ref[substring(x,2)])
+})
 
 #recusando horarios
 matricula <- matricula[!grepl(paste(recusados,collapse="|"),matricula[["horarios"]]),]
@@ -56,7 +62,7 @@ ggraph(g) +
   theme_void() + 
   theme(legend.position = 'none')
 
-g_cliques <- cliques(g, min = 2, max = 6)
+g_cliques <- cliques(g, min = 2, max = 7)
 carga_clique <- sapply(g_cliques, function(x) sum(x$carga))
 
 g_cliques <- g_cliques[order(carga_clique, decreasing = T)]
