@@ -23,7 +23,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Chromosummary screenshot][product-screenshot]
+[![Grafo][product-screenshot]]
 
 Trabalho em progresso. Matrícula automatizada através da análise de redes.
 
