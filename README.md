@@ -23,7 +23,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Grafo][product-screenshot]]
+<img src="clique.png" alt="Grafo disciplinas" width="100%">
 
 Trabalho em progresso. Matrícula automatizada através da análise de redes.
 
