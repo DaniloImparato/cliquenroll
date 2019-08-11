@@ -19,7 +19,7 @@ horarios_ref <- setNames(1:18, as.vector(sapply(c("M","T","N"), paste0, 1:6)))
 
 setwd("C:/R/cliquenroll/")
 
-matricula <- read.table("matricula2.tsv",stringsAsFactors = F,sep="\t",header=T, encoding = "UTF-8")
+matricula <- read.table("matricula.tsv",stringsAsFactors = F,sep="\t",header=T, encoding = "UTF-8")
 recusados <- c("M")
 
 matricula[["horarios"]] <- lapply(matricula[["horario"]],horarios)
@@ -50,22 +50,32 @@ library(ggraph)
 
 g <- graph_from_data_frame(subset(acceptance, v==T), directed = F, vertices = matricula)
 
-#V(g)$size <- V(g)$carga/5
-
-#plot(g)
-
-ggraph(g) +
-  geom_edge_link(colour="grey") +
-  geom_node_point(aes(size=carga, color=nome)) +
-  geom_node_text(aes(label=nome), size=V(g)$carga/20) +
-  scale_size_continuous(range = c(4,8), guide = "none") +
-  theme_void() + 
-  theme(legend.position = 'none')
-
 g_cliques <- cliques(g, min = 2, max = 7)
 carga_clique <- sapply(g_cliques, function(x) sum(x$carga))
 
 g_cliques <- g_cliques[order(carga_clique, decreasing = T)]
+
+#V(g)$size <- V(g)$carga/5
+
+#plot(g)
+
+# activate(edges) %>% 
+  # mutate(to_setose = .N()$Species[to] == 'setosa')
+
+# colorindo as arestas do primeiro clique
+E(g)$clique <- g %>% ends(E(.)) %>% apply(1, function(vertices){ all(vertices %in% g_cliques[[1]]$name) })
+
+ggraph(g) +
+  geom_edge_link(aes(colour=clique, width=clique)) +
+  geom_node_point(aes(size=carga, color=nome)) +
+  geom_node_text(aes(label=nome), size=V(g)$carga/20) +
+  scale_size_continuous(range = c(10,16), guide = "none") +
+  scale_edge_width_manual(values = c(0.75,1.75), guide = "none") +
+  scale_edge_color_manual(values = c("#BBBBBB","#666666"), guide = "none") +
+  theme_void() + 
+  theme(legend.position = 'none')
+
+ggsave("clique.png")
 
 sugestoes <- lapply(g_cliques, function(sugestao){
   df <- data.frame(nome = sugestao$nome, horario = sugestao$horario, stringsAsFactors = F)
