@@ -11,7 +11,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/daniloimparato/cliquenroll">
-    <img src="logo.png" alt="Logo" width="160" height="160">
+    <img src="logo.png" alt="Logo" height="160">
   </a>
 
   <p align="center">
